@@ -10,8 +10,10 @@ import {
 } from '@react-three/drei';
 import './App.css';
 
-function Sphere({ position, rotation, scale, color = 'hotpink' }) {
+// Symbolic Product (Shoe-like) using Torus + Box
+function ProductModel({ position, rotation, scale, color = 'orange' }) {
   const meshRef = useRef();
+
   useFrame(() => {
     meshRef.current.position.set(...position);
     meshRef.current.rotation.set(...rotation);
@@ -20,11 +22,26 @@ function Sphere({ position, rotation, scale, color = 'hotpink' }) {
 
   return (
     <group ref={meshRef}>
-      <mesh>
-        <sphereGeometry args={[0.2, 32, 32]} />
+      {/* Sole (Torus as base of the shoe) */}
+      <mesh position={[0, 0, 0]}>
+        <torusGeometry args={[0.3, 0.1, 16, 100]} />
+        <meshStandardMaterial color="gray" />
+      </mesh>
+
+      {/* Shoe top (box) */}
+      <mesh position={[0, 0.25, 0]}>
+        <boxGeometry args={[0.5, 0.2, 0.2]} />
         <meshStandardMaterial color={color} />
       </mesh>
-      <Text position={[0, 0.5, 0]} fontSize={0.2} color="white" anchorX="center" anchorY="bottom">
+
+      {/* Position label */}
+      <Text
+        position={[0, 0.7, 0]}
+        fontSize={0.2}
+        color="white"
+        anchorX="center"
+        anchorY="bottom"
+      >
         ({position.map(v => +v.toFixed(1)).join(', ')})
       </Text>
     </group>
@@ -48,9 +65,14 @@ function Scene({ position, rotation, scale, reflectedPosition, reflectedColor })
       <ambientLight intensity={0.5} />
       <directionalLight position={[5, 5, 5]} />
       <axesHelper args={[10]} />
-      <Sphere position={position} rotation={rotation} scale={scale} />
+      <ProductModel position={position} rotation={rotation} scale={scale} />
       {reflectedPosition && (
-        <Sphere position={reflectedPosition} rotation={[0, 0, 0]} scale={[1, 1, 1]} color={reflectedColor} />
+        <ProductModel
+          position={reflectedPosition}
+          rotation={[0, 0, 0]}
+          scale={[1, 1, 1]}
+          color={reflectedColor}
+        />
       )}
       <ProjectionLines position={position} />
       <OrbitControls />
@@ -130,18 +152,24 @@ function App() {
   return (
     <div>
       <header className="header">
-        <div className="logo">🔺 3D Transform Visualizer</div>
+        <div className="logo">🛍️ 3D Product Transform Visualizer</div>
       </header>
       <div className="container">
         <div className="left">
           <div className="card canvas-card">
             <Canvas camera={{ position: [5, 5, 5], fov: 60 }}>
-              <Scene position={position} rotation={rotation} scale={scale} reflectedPosition={reflectedPosition} reflectedColor={reflectedColor} />
+              <Scene
+                position={position}
+                rotation={rotation}
+                scale={scale}
+                reflectedPosition={reflectedPosition}
+                reflectedColor={reflectedColor}
+              />
             </Canvas>
           </div>
         </div>
         <div className="right">
-          <h2 className="section-title">3D Transformations</h2>
+          <h2 className="section-title">Apply 3D Transformations</h2>
           {!selectedTransform && (
             <div className="card-grid">
               {['Translation', 'Rotation', 'Scaling', 'Shearing', 'Reflection'].map(type => (
